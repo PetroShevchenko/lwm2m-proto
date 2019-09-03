@@ -5,7 +5,7 @@
 int main(int argc, char ** argv)
 {
 	try {
-    udp_server server ("192.168.0.100", 5673);
+    udp_server server ("127.0.0.1", 5673);
 
     server.run();
     }

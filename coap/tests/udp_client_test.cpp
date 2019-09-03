@@ -8,7 +8,7 @@ int main(int argc, char ** argv)
 
 
 	try {
-    udp_client client ("0.0.0.0", 5673);
+    udp_client client ("127.0.0.1", 5673);
 
     client.send((const uint8_t *)"HELLO SERVER", sizeof("HELLO SERVER") - 1);
     
