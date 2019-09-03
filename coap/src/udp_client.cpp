@@ -24,7 +24,7 @@ udp_client::udp_client(std::string _addr, int _port):
 
     server_address = new struct sockaddr_in; 
 
-    buffer = new uint8_t [UDP_CLIENT_MAX_BUFFER_SIZE];                                                                                                                                                                                                                                                              
+    buffer = new uint8_t [UDP_CLIENT_MAX_BUFFER_SIZE];                                                                                                                                                                                                                                                           
 
     sock = socket (AF_INET, SOCK_DGRAM, 0);                                                                                                                                                                                                                                                                       
 
@@ -70,6 +70,8 @@ void udp_client::receive()
 	socklen_t address_length;
 	struct sockaddr client_address;
 	
+    memset (buffer, 0 , UDP_CLIENT_MAX_BUFFER_SIZE);
+
 	received = recvfrom (sock, (char *)buffer, UDP_CLIENT_MAX_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &client_address,  &address_length);
 
 

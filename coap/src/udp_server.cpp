@@ -71,6 +71,8 @@ void udp_server::run()
     fd_set read_descriptors;
     struct timeval tv;
     static socklen_t address_length = 0;
+
+    static struct sockaddr_storage peer_addr;
  
 
     while (!do_stop)
@@ -106,8 +108,19 @@ void udp_server::run()
             }*/
             if (FD_ISSET(sock, &read_descriptors)) { //was received something from a socket
                  
+
+                address_length = sizeof(*client_address);
+
                  received =  recvfrom (sock, buffer, UDP_SERVER_MAX_BUFFER_SIZE, MSG_WAITALL,
                     (struct sockaddr *) client_address, &address_length);
+
+                 buffer[length] = 0;
+
+                std::cout << "received message : " << (const char *)buffer << std::endl; 
+                std::cout <<  "sin_family = " << client_address->sin_family << std::endl;
+                std::cout <<  "sin_port = " << client_address->sin_port << std::endl;
+                std::cout <<  "sin_addr = " << client_address->sin_addr.s_addr << std::endl;
+
 
                  if (received != length) {
                      std::cerr << "Receives and expected data is not compared" << std::endl;
@@ -123,6 +136,9 @@ void udp_server::run()
             std::cout << "client_address = " << client_address << std::endl;
             std::cout << "address_length = " << address_length << std::endl;
 
+            std::cout <<  "sin_family = " << client_address->sin_family << std::endl;
+            std::cout <<  "sin_port = " << client_address->sin_port << std::endl;
+            std::cout <<  "sin_addr = " << client_address->sin_addr.s_addr << std::endl;
 
             sent =  sendto (sock, (const char *)buffer, (size_t)length, MSG_CONFIRM ,(const struct sockaddr *) client_address, sizeof(*client_address));
 
@@ -169,7 +185,7 @@ inline void udp_server::client_hello_receive_step()
 
     do_receive = true;
     do_send = false;
-    
+
     std::cout << "client_hello_receive_step()" << std::endl;
      ++state; 
 }
