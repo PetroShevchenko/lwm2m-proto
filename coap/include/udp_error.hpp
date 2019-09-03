@@ -4,17 +4,18 @@
 #include <vector>
 
 enum {
-    UDP_ERROR_CREATE_SOCKET = 0,
+    UDP_ERROR_OK = 0,
+    UDP_ERROR_INVAL,
+    UDP_ERROR_CREATE_SOCKET,
     UDP_ERROR_BIND,
-    UDP_ERROR_NUMBER
+    UDP_ERROR_NUMBER,
+    UDP_ERROR_SEND,
+    UDP_ERROR_RECEIVE,
+    UDP_ERROR_UNKNOWN
 };
-#define UDP_ERROR_MIN   UDP_ERROR_CREATE_SOCKET
-#define UDP_ERROR_MAX   UDP_ERROR_BIND
+#define UDP_ERROR_MIN   UDP_ERROR_OK
+#define UDP_ERROR_MAX   UDP_ERROR_UNKNOWN
 
-enum {
-    UDP_ERROR_INVAL = -1,
-    UDP_ERROR_OK = 0
-};
 
 class udp_error {
     public:
@@ -32,22 +33,24 @@ class udp_error {
         }
         void show_message()
         {
-            if (code > messages.max) return;
-            std::cout << messages.text[code];
+            if (code > messages.size()) return;
+            std::cout << messages[code];
         }
     
     protected:
 
     int code;
 
-    struct {
-        const int max = 3;
-        const std::vector <std::string> text = {
+        const std::vector <std::string> messages = {
             "No any errors",
+            "Invalid parameter",
             "Can not create a socket ",
-            "Can not bind IP address and port"
+            "Can not bind IP address and port",
+            "",
+            "Can not send the package",
+            "Can not receive the package",
+            "Unknown error"
         }; 
-    } messages;
 
 };
 

@@ -25,6 +25,7 @@ class udp_server {
     std::string addr;
     struct sockaddr_in * client_address;
     struct sockaddr_in * server_address;
+    
     //struct addrinfo * addrinfo;
     uint8_t * buffer;
     size_t length;

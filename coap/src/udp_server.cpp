@@ -22,7 +22,7 @@ enum {
  };         
 
 udp_server::udp_server(std::string _addr, int _port):
-    addr(_addr), port(_port), length(0), state(0), do_receive(false), do_send(false), do_stop(false), receive_timeout(0)                                                                                                                                                                       
+    addr(_addr), port(_port), length(0), state(0), do_receive(false), do_send(false), do_stop(false), receive_timeout(0)                                                                                                                                                                  
 {                                                                                                                                                                                                                                                                                                                   
     int return_code;                                                                                                                                                                                                                                                                                                
 
@@ -70,11 +70,8 @@ void udp_server::run()
     int return_code;
     fd_set read_descriptors;
     struct timeval tv;
-    socklen_t address_length;
+    static socklen_t address_length = 0;
  
-    FD_ZERO (&read_descriptors);
-    FD_SET (0, &read_descriptors); // watch stdin (fd 0) to see when it has input
-    FD_SET (sock, &read_descriptors); // watch socket descriptor to receive data from a client
 
     while (!do_stop)
     {
@@ -82,10 +79,14 @@ void udp_server::run()
   
         if (do_receive) {
 
+            FD_ZERO (&read_descriptors);
+            //FD_SET (0, &read_descriptors); // watch stdin (fd 0) to see when it has input
+            FD_SET (sock, &read_descriptors); // watch socket descriptor to receive data from a client
+
             tv.tv_sec = receive_timeout;
             tv.tv_usec = 0;
 
-            return_code = select (1, &read_descriptors, NULL, NULL, &tv);
+            return_code = select (FD_SETSIZE, &read_descriptors, NULL, NULL, &tv);
 
             std::cout << "return_code is " << return_code << std::endl;
 
@@ -97,12 +98,12 @@ void udp_server::run()
                 std::cerr << "the error happened: select " << std::endl;
                 continue; 
             }
-            if (FD_ISSET(0, &read_descriptors)) { //was entered something from stdin
+/*            if (FD_ISSET(0, &read_descriptors)) { //was entered something from stdin
                 std::cout << "was entered something from stdin" << std::endl;
                 char c;
                 while (std::cin.get(c))
                     std::cout << c;
-            }
+            }*/
             if (FD_ISSET(sock, &read_descriptors)) { //was received something from a socket
                  
                  received =  recvfrom (sock, buffer, UDP_SERVER_MAX_BUFFER_SIZE, MSG_WAITALL,
@@ -117,7 +118,15 @@ void udp_server::run()
             }
         }
         if (do_send) {
-            sent =  sendto (sock, buffer, length, MSG_CONFIRM ,(struct sockaddr *) client_address, address_length);
+
+            std::cout << "sock = " << sock << std::endl;
+            std::cout << "client_address = " << client_address << std::endl;
+            std::cout << "address_length = " << address_length << std::endl;
+
+
+            sent =  sendto (sock, (const char *)buffer, (size_t)length, MSG_CONFIRM ,(const struct sockaddr *) client_address, sizeof(*client_address));
+
+            std::cout << "errno =" << errno;
 
             if (sent != length) {
                 std::cerr << "the buffer was not sent completly " << std::endl;
@@ -169,6 +178,11 @@ inline void udp_server::client_hello_ack_step()
     const std::string client_ack_message = "ACK";
     std::memcpy (buffer, client_ack_message.c_str(), client_ack_message.length());
     length = (size_t)client_ack_message.length();
+
+    buffer[length] = 0;
+    std::cout << "buffer : " << (char *)buffer << std::endl;
+    std::cout << "buffer length : " << length << std::endl;
+
 
     do_send = true;
     do_receive = false;
