@@ -4,11 +4,13 @@
 #include <cstdint>
 #include <cstdbool>
 #include "udp_error.hpp"
-
-
-enum {
-    UDP_SERVER_MAX_BUFFER_SIZE = 1024
-};
+#include "config.h"
+#ifdef USE_WOLFSSL
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
+#include <netdb.h>
+#include <string>
+#endif
 
 class udp_server {
     public:
@@ -34,12 +36,30 @@ class udp_server {
     bool do_send;
     bool do_stop;
     unsigned char receive_timeout;
+    bool is_encripted;
+
+#ifdef USE_WOLFSSL
+
+    WOLFSSL_CTX* ctx;
+    WOLFSSL * ssl;
+
+    std::string caCertLoc;
+    std::string servCertLoc;
+    std::string servKeyLoc;
+#endif
 
     private:
+#ifdef USE_WOLFSSL
+    inline void dtls_client_hello_receive_step();
+    inline void dtls_connect_step();
+    inline void dtls_handshake_step();
+    inline void dtls_error_handle_step();
+#endif        
     inline void client_hello_receive_step();
     inline void client_hello_ack_step();
     inline void server_hello_send_step();
-    inline void server_hello_ack_step(); 
+    inline void server_hello_ack_step();    
+
 };
 
 

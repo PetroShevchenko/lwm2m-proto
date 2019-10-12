@@ -2,15 +2,23 @@
 #define UDP_ERROR_HPP
 #include <iostream>
 #include <vector>
+#include "config.h"
 
 enum {
     UDP_ERROR_OK = 0,
     UDP_ERROR_INVAL,
     UDP_ERROR_CREATE_SOCKET,
+    UDP_ERROR_SET_SOCK_OPT,
     UDP_ERROR_BIND,
     UDP_ERROR_NUMBER,
     UDP_ERROR_SEND,
     UDP_ERROR_RECEIVE,
+#ifdef USE_WOLFSSL
+    UDP_ERROR_WOLFSSL_NEW_CTX,
+    UDP_ERROR_WOLFSSL_CERTS_LOCATION,
+    UDP_ERROR_WOLFSSL_NEW_OBJECT,
+    UDP_ERROR_WOLFSSL_CONNECT,
+#endif    
     UDP_ERROR_UNKNOWN
 };
 #define UDP_ERROR_MIN   UDP_ERROR_OK
@@ -30,6 +38,10 @@ class udp_error {
             if ( (error_code < UDP_ERROR_MIN) || (error_code > UDP_ERROR_MAX)) return UDP_ERROR_INVAL;
             code = error_code;
             return UDP_ERROR_OK;
+        }
+        int get_code() const
+        {
+            return code;
         }
         void show_message()
         {

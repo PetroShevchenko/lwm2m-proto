@@ -4,11 +4,13 @@
 #include <cstdint>
 #include <cstdbool>
 #include "udp_error.hpp"
-
-
-enum {
-    UDP_CLIENT_MAX_BUFFER_SIZE = 1024
-};
+#include "config.h"
+#ifdef USE_WOLFSSL
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
+#include <netdb.h>
+#include <string>
+#endif
 
 class udp_client {
     public:
@@ -37,6 +39,15 @@ class udp_client {
 
     uint8_t * buffer;
     size_t length;
+
+#ifdef USE_WOLFSSL
+
+    std::string cert_array; 
+    const char * certs; 
+
+    WOLFSSL_CTX* ctx;
+    WOLFSSL * ssl;
+#endif    
 
 };
 
