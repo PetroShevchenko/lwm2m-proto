@@ -1,2 +1,2 @@
-# lwm2m-proto
-lwm2m protocol implementation written in C++
+# udp-dtlsexampleo
+This repository contains examples of udp/dtls server and client written in C++
